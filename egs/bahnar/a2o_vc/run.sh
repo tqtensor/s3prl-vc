@@ -111,21 +111,3 @@ if [ "${stage}" -le 3 ] && [ "${stop_stage}" -ge 3 ]; then
     done
     echo "Successfully finished decoding."
 fi
-
-if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-    echo "stage 4: Objective Evaluation"
-
-    [ -z "${checkpoint}" ] && checkpoint="$(ls -dt "${expdir}"/*.pkl | head -1 || true)"
-    outdir="${expdir}/results/$(basename "${checkpoint}" .pkl)"
-    for name in "eval"; do
-        wavdir="${outdir}/${name}/wav"
-        echo "Evaluation start. See the progress via ${outdir}/${name}/evaluation.log."
-        ${cuda_cmd} --gpu "${n_gpus}" "${outdir}/${name}/evaluation.log" \
-            local/evaluate.py \
-            --wavdir ${wavdir} \
-            --data_root "${db_root}/bahnar" \
-            --trgspk ${trgspk} \
-            --f0_path "conf/f0.yaml"
-        grep "Mean MCD" "${outdir}/${name}/evaluation.log"
-    done
-fi
