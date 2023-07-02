@@ -3,8 +3,8 @@
 # Copyright 2022 Wen-Chin Huang (Nagoya University)
 #  MIT License (https://opensource.org/licenses/MIT)
 
-. ./path.sh || exit 1;
-. ./cmd.sh || exit 1;
+. ./path.sh || exit 1
+. ./cmd.sh || exit 1
 
 # basic settings
 stage=-1       # stage to start
@@ -18,26 +18,25 @@ conf=conf/taco2_ar.yaml
 
 # dataset configuration
 db_root=downloads
-trgspk=TEF1
+trgspk=MGL1
 
 # training related setting
-tag=""     # tag for directory to save model
-resume=""  # checkpoint path to resume training
-           # (e.g. <path>/<to>/checkpoint-10000steps.pkl)
-           
+tag=""    # tag for directory to save model
+resume="" # checkpoint path to resume training
+# (e.g. <path>/<to>/checkpoint-10000steps.pkl)
+
 # decoding related setting
-checkpoint=""               # checkpoint path to be used for decoding
-                            # if not provided, the latest one will be used
-                            # (e.g. <path>/<to>/checkpoint-400000steps.pkl)
-                                       
+checkpoint="" # checkpoint path to be used for decoding
+# if not provided, the latest one will be used
+# (e.g. <path>/<to>/checkpoint-400000steps.pkl)
+
 # shellcheck disable=SC1091
-. utils/parse_options.sh || exit 1;
+. utils/parse_options.sh || exit 1
 
 set -euo pipefail
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     echo "stage -1: Data and Pretrained Model Download"
-    local/data_download.sh ${db_root}/vcc2020
     local/vocoder_download.sh ${db_root}
 fi
 
@@ -47,7 +46,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
         --train_set "train" \
         --dev_set "dev" \
         --eval_set "eval" \
-        "${db_root}/vcc2020" "${trgspk}" "data" "local/lists"
+        "${db_root}/bahnar" "${trgspk}" "data" "local/lists"
 fi
 
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
@@ -55,10 +54,10 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Statistics computation start. See the progress via data/${trgspk}_train/compute_statistics.log."
     ${train_cmd} "data/${trgspk}_train/compute_statistics.log" \
         compute_statistics.py \
-            --config "${conf}" \
-            --scp "data/${trgspk}_train/wav.scp" \
-            --dumpdir "data/${trgspk}_train" \
-            --verbose "${verbose}"
+        --config "${conf}" \
+        --scp "data/${trgspk}_train/wav.scp" \
+        --dumpdir "data/${trgspk}_train" \
+        --verbose "${verbose}"
     echo "Successfully calculated statistics."
 fi
 
@@ -81,14 +80,14 @@ if [ "${stage}" -le 2 ] && [ "${stop_stage}" -ge 2 ]; then
     echo "Training start. See the progress via ${expdir}/train.log."
     ${cuda_cmd} --gpu "${n_gpus}" "${expdir}/train.log" \
         ${train} \
-            --upstream ${upstream} \
-            --config "${conf}" \
-            --train-scp "data/${trgspk}_train/wav.scp" \
-            --dev-scp "data/${trgspk}_dev/wav.scp" \
-            --trg-stats "${expdir}/stats.h5" \
-            --outdir "${expdir}" \
-            --resume "${resume}" \
-            --verbose "${verbose}"
+        --upstream ${upstream} \
+        --config "${conf}" \
+        --train-scp "data/${trgspk}_train/wav.scp" \
+        --dev-scp "data/${trgspk}_dev/wav.scp" \
+        --trg-stats "${expdir}/stats.h5" \
+        --outdir "${expdir}" \
+        --resume "${resume}" \
+        --verbose "${verbose}"
     echo "Successfully finished training."
 fi
 
@@ -103,11 +102,11 @@ if [ "${stage}" -le 3 ] && [ "${stop_stage}" -ge 3 ]; then
         echo "Decoding start. See the progress via ${outdir}/${name}/decode.log."
         ${cuda_cmd} --gpu "${n_gpus}" "${outdir}/${name}/decode.log" \
             decode.py \
-                --scp "data/${name}/wav.scp" \
-                --checkpoint "${checkpoint}" \
-                --trg-stats "${expdir}/stats.h5" \
-                --outdir "${outdir}/${name}" \
-                --verbose "${verbose}"
+            --scp "data/${name}/wav.scp" \
+            --checkpoint "${checkpoint}" \
+            --trg-stats "${expdir}/stats.h5" \
+            --outdir "${outdir}/${name}" \
+            --verbose "${verbose}"
         echo "Successfully finished decoding of ${name} set."
     done
     echo "Successfully finished decoding."
@@ -123,10 +122,10 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
         echo "Evaluation start. See the progress via ${outdir}/${name}/evaluation.log."
         ${cuda_cmd} --gpu "${n_gpus}" "${outdir}/${name}/evaluation.log" \
             local/evaluate.py \
-                --wavdir ${wavdir} \
-                --data_root "${db_root}/vcc2020" \
-                --trgspk ${trgspk} \
-                --f0_path "conf/f0.yaml"
+            --wavdir ${wavdir} \
+            --data_root "${db_root}/bahnar" \
+            --trgspk ${trgspk} \
+            --f0_path "conf/f0.yaml"
         grep "Mean MCD" "${outdir}/${name}/evaluation.log"
     done
 fi
