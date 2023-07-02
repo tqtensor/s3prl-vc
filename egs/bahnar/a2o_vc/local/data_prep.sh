@@ -4,7 +4,7 @@
 #  MIT License (https://opensource.org/licenses/MIT)
 
 # shellcheck disable=SC1091
-. ./path.sh || exit 1;
+. ./path.sh || exit 1
 
 train_set="train_nodev"
 dev_set="dev"
@@ -12,7 +12,7 @@ eval_set="eval"
 shuffle=false
 
 # shellcheck disable=SC1091
-. utils/parse_options.sh || exit 1;
+. utils/parse_options.sh || exit 1
 
 db_root=$1
 spk=$2
@@ -22,7 +22,7 @@ lists_dir=$4
 # check arguments
 if [ $# != 4 ]; then
     echo "Usage: $0 <db_root> <spk> <data_dir> <lists_dir>"
-    echo "e.g.: $0 downloads/vcc2020 TEF1 data local/lists"
+    echo "e.g.: $0 downloads/bahnar MGL1 data local/lists"
     echo ""
     echo "Options:"
     echo "    --num_dev: number of development uttreances (default=100)."
@@ -37,10 +37,10 @@ fi
 set -euo pipefail
 
 srcspks=(
-    "SEF1" "SEF2" "SEM1" "SEM2"
+    "MBD1" "FBD1"
 )
 trgspks=(
-    "TEF1" "TEF2" "TEM1" "TEM2"
+    "MGL1" "FGL1"
 )
 
 # check speaker
@@ -64,16 +64,16 @@ dev_scp="${data_dir}/${spk}_${dev_set}/wav.scp"
 # make train scp
 while IFS= read -r number; do
     wavfile="${db_root}/${spk}/${number}.wav"
-    [ -e "${wavfile}" ] && echo "${number} ${wavfile}" >> "${train_scp}"
-done < "${lists_dir}/E_train_list.txt"
+    [ -e "${wavfile}" ] && echo "${number} ${wavfile}" >>"${train_scp}"
+done <"${lists_dir}/train_list.txt"
 
 echo "Successfully prepared train data scp."
 
 # make dev scp
 while IFS= read -r number; do
     wavfile="${db_root}/${spk}/${number}.wav"
-    [ -e "${wavfile}" ] && echo "${number} ${wavfile}" >> "${dev_scp}"
-done < "${lists_dir}/E_dev_list.txt"
+    [ -e "${wavfile}" ] && echo "${number} ${wavfile}" >>"${dev_scp}"
+done <"${lists_dir}/dev_list.txt"
 
 echo "Successfully prepared dev data scp."
 
@@ -91,9 +91,9 @@ if [ ! -e "${eval_scp}" ]; then
         # loop through source speakers
         for srcspk in "${srcspks[@]}"; do
             wavfile="${db_root}/${srcspk}/${number}.wav"
-            [ -e "${wavfile}" ] && echo "${srcspk}_${number} ${wavfile}" >> "${eval_scp}"
-        done 
-    done < "${lists_dir}/eval_list.txt"
+            [ -e "${wavfile}" ] && echo "${srcspk}_${number} ${wavfile}" >>"${eval_scp}"
+        done
+    done <"${lists_dir}/eval_list.txt"
 fi
 
 echo "Successfully prepared eval data."
