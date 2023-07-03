@@ -7,7 +7,7 @@ Thie recipe can be used to reproduce the results in the [S3PRL-VC paper](https:/
 Run the following command:
 
 ```
-./run.sh --stage 0 --stop_stage 2 --upstream <upstream> --trgspk <trgspk>
+./run.sh --stage -1 --stop_stage 2 --upstream <upstream> --trgspk <trgspk>
 ```
 
 Four stages are executed:

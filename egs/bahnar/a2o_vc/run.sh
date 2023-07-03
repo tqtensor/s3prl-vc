@@ -37,6 +37,7 @@ set -euo pipefail
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
     echo "stage -1: Data and Pretrained Model Download"
+    local/data_download.sh ${db_root}
     local/vocoder_download.sh ${db_root}
 fi
 
