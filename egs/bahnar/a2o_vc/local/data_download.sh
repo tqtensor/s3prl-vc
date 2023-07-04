@@ -14,27 +14,14 @@ fi
 # download dataset
 cwd=$(pwd)
 if [ ! -e ${db}/.done ]; then
-    # install MinIO
-    echo "Setup MinIO"
-
-    curl https://dl.min.io/client/mc/release/linux-amd64/mc \
-        --create-dirs \
-        -o $HOME/minio-binaries/mc
-
-    chmod +x $HOME/minio-binaries/mc
+    # init MinIO
     export PATH=$PATH:$HOME/minio-binaries/
-
-    read -p "Host: " host
-    read -p "User: " user
-    read -s -p "Password: " password
-
-    mc alias set tqtensor-minio $host $user $password
 
     mkdir -p ${db}
     cd ${db}
     mc cp tqtensor-minio/bk-imp/tts-lab/vc/bahnar-parallel.zip .
 
-    unzip '*.zip'
+    unzip -q '*.zip' -d bahnar
     rm bahnar-parallel.zip
 
     cd $cwd
