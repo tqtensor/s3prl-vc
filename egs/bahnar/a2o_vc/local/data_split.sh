@@ -15,7 +15,7 @@ eval_list="${lists_dir}/eval_list.txt"
 # list all WAV files in the directory and shuffle the list
 wav_files=$(find "$wav_directory" -type f -name "*.wav" | shuf)
 
-# downsample to 25 files
+# down sample to 25 files
 wav_files=$(echo "$wav_files" | head -n 25)
 
 # calculate the number of files for each set
