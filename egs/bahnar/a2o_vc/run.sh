@@ -43,8 +43,8 @@ fi
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     echo "stage 0: Data preparation"
-    local/data_split.sh \
-        "${db_root}/bahnar" "${trgspk}" "local/lists"
+    # local/data_split.sh \
+    #     "${db_root}/bahnar" "${trgspk}" "local/lists"
     local/data_prep.sh \
         --train_set "train" \
         --dev_set "dev" \
